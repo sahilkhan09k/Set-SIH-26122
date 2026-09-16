@@ -1,0 +1,54 @@
+# Environment variables & secrets
+.env
+.env.*
+*.env
+*.local
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build artifacts & distribution
+dist/
+**/dist/
+dist-ssr/
+build/
+**/build/
+
+# Markdown specification & prompt files (per user request)
+*.md
+**/*.md
+!README.md
+
+# Agent directories & internal configurations
+.agents/
+.gemini/
+
+# Databases & local state
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+backend/prisma/*.db
+backend/prisma/*.db-journal
+
+# Logs & debugging
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Scratch & maintenance scripts
+clearDb.cjs
+scratch/
+*.tmp
+
+# Editor & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

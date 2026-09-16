@@ -1,0 +1,51 @@
+ERMHDR	15.2	2026-09-15	admin	SETU Demo Project	Project	Project	
+%T	PROJECT
+%F	proj_id	proj_short_name	proj_name	plan_start_date	plan_end_date	last_recalc_date	
+%R	PRJ-001	REF-PH2	Refinery Expansion Phase 2 - Hydrocracker & Utilities	2026-06-01 00:00	2027-04-30 00:00	2026-09-15 00:00	
+%T	WBS
+%F	wbs_id	proj_id	wbs_short_name	wbs_name	parent_wbs_id	
+%R	WBS-100	PRJ-001	1.0	Refinery Expansion Phase 2	
+%R	WBS-110	PRJ-001	1.1	Civil & Structural	WBS-100
+%R	WBS-120	PRJ-001	1.2	Foundation Works	WBS-110
+%R	WBS-130	PRJ-001	1.3	Piping & Pipeline	WBS-100
+%R	WBS-131	PRJ-001	1.3.1	Pipe Rack R24 Works	WBS-130
+%R	WBS-140	PRJ-001	1.4	Electrical & Instrumentation	WBS-100
+%R	WBS-141	PRJ-001	1.4.1	Substation S2 Works	WBS-140
+%R	WBS-150	PRJ-001	1.5	Mechanical & Rotating Equipment	WBS-100
+%T	TASK
+%F	task_id	proj_id	wbs_id	task_code	task_name	task_type	target_start_date	target_end_date	target_drtn_hr_cnt	rsrc_id	phys_complete_pct	
+%R	TASK-001	PRJ-001	WBS-120	CIV-1101	Excavation & Earthwork — Foundation F-204	TT_Task	2026-09-10 08:00	2026-09-15 17:00	40	CREW-CIV	100	
+%R	TASK-002	PRJ-001	WBS-120	CIV-1102	Reinforced Concrete Foundation F-204 Pouring	TT_Task	2026-09-19 08:00	2026-09-22 17:00	24	CREW-CIV	100	
+%R	TASK-003	PRJ-001	WBS-120	CIV-1103	Anchor Bolt Setting & Grouting — Equipment Base B-204	TT_Task	2026-09-23 08:00	2026-09-26 17:00	24	CREW-CIV	50	
+%R	TASK-004	PRJ-001	WBS-120	CIV-1104	Structural Steel Erection — Columns & Beams at Area 4	TT_Task	2026-09-27 08:00	2026-10-05 17:00	72	CREW-STR	0	
+%R	TASK-005	PRJ-001	WBS-120	CIV-1105	Fireproofing Application — Structural Steel at Area 4	TT_Task	2026-10-06 08:00	2026-10-12 17:00	56	CREW-FP	0	
+%R	TASK-006	PRJ-001	WBS-131	PIP-2401	Erect Line 24-XX — 8IN Process Line (Spool Erection)	TT_Task	2026-09-18 08:00	2026-09-24 17:00	48	CREW-PIP	70	
+%R	TASK-007	PRJ-001	WBS-131	PIP-2402	Field Weld Joints — Line 24-XX (Spool P24-17)	TT_Task	2026-09-22 08:00	2026-09-27 17:00	40	CREW-PIP	30	
+%R	TASK-008	PRJ-001	WBS-131	PIP-2403	Hydrostatic Test Package HT-24A (Line 24-XX)	TT_Task	2026-09-28 08:00	2026-10-02 17:00	32	CREW-QC	0	
+%R	TASK-009	PRJ-001	WBS-131	PIP-2501	Erect 6IN Utility Water Line — Area 4 North	TT_Task	2026-09-20 08:00	2026-09-26 17:00	48	CREW-PIP	25	
+%R	TASK-010	PRJ-001	WBS-131	PIP-2502	Insulation of Process Lines — Line 24-XX & Adjacent	TT_Task	2026-10-01 08:00	2026-10-08 17:00	56	CREW-INS	0	
+%R	TASK-011	PRJ-001	WBS-141	ELE-3011	Install Perforated Cable Tray 300mm — Substation S2	TT_Task	2026-09-17 08:00	2026-09-23 17:00	48	CREW-ELE	60	
+%R	TASK-012	PRJ-001	WBS-141	ELE-3012	Pull 11kV Power Feeder Cable to Switchgear SWG-2	TT_Task	2026-09-24 08:00	2026-09-30 17:00	48	CREW-ELE	0	
+%R	TASK-013	PRJ-001	WBS-141	ELE-3013	Earthing & Lightning Protection — Substation S2 Zone	TT_Task	2026-09-25 08:00	2026-09-29 17:00	32	CREW-ELE	0	
+%R	TASK-014	PRJ-001	WBS-141	INS-4020	Mount Differential Pressure Transmitters PT-2401/02	TT_Task	2026-09-25 08:00	2026-09-28 17:00	24	CREW-INS	0	
+%R	TASK-015	PRJ-001	WBS-141	INS-4021	Instrument Cable Pulling — Loop 2401 & 2402	TT_Task	2026-09-29 08:00	2026-10-03 17:00	40	CREW-INS	0	
+%R	TASK-016	PRJ-001	WBS-150	MEC-5004	Pump P-102A Alignment and Final Coupling Inspection	TT_Task	2026-09-20 08:00	2026-09-23 17:00	24	CREW-MEC	100	
+%R	TASK-017	PRJ-001	WBS-150	MEC-5005	Compressor K-201 Skid Grouting and Levelling	TT_Task	2026-09-24 08:00	2026-09-28 17:00	32	CREW-MEC	0	
+%R	TASK-018	PRJ-001	WBS-150	MEC-5006	Heat Exchanger E-301 Tube Bundle Insertion	TT_Task	2026-10-01 08:00	2026-10-06 17:00	40	CREW-MEC	0	
+%T	TASKRSRC
+%F	taskrsrc_id	task_id	proj_id	rsrc_id	act_start_date	act_end_date	target_qty	act_reg_qty	
+%R	TR-001	TASK-002	PRJ-001	CREW-CIV	2026-09-19 08:00	2026-09-22 17:00	180	180	
+%R	TR-002	TASK-006	PRJ-001	CREW-PIP	2026-09-18 08:00		120	84	
+%R	TR-003	TASK-011	PRJ-001	CREW-ELE	2026-09-17 08:00		210	126	
+%R	TR-004	TASK-016	PRJ-001	CREW-MEC	2026-09-20 08:00	2026-09-23 17:00	1	1	
+%T	RSRC
+%F	rsrc_id	rsrc_name	rsrc_type	
+%R	CREW-CIV	Civil Construction Crew	RT_Labor	
+%R	CREW-STR	Structural Steel Crew	RT_Labor	
+%R	CREW-PIP	Piping & Spool Erection Crew	RT_Labor	
+%R	CREW-ELE	Electrical Installation Crew	RT_Labor	
+%R	CREW-INS	Instrumentation Crew	RT_Labor	
+%R	CREW-MEC	Mechanical/Rotating Equipment Crew	RT_Labor	
+%R	CREW-QC	QC/Testing Crew	RT_Labor	
+%R	CREW-FP	Fireproofing Crew	RT_Labor	
+%E
