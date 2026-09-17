@@ -315,8 +315,8 @@ export default function PlannerReview({ onApprove, onReject, addToast }: Planner
               <Layers size={16} color="var(--accent)" />
               <span className="review-panel-label">3. Matched Schedule Activity</span>
             </div>
-            <span style={{ fontSize: '13px', fontWeight: 700, fontFamily: 'var(--font-mono)', color: currentMatch.finalConfidence >= 85 ? 'var(--success)' : 'var(--warning)' }}>
-              {currentMatch.finalConfidence}% MATCH
+            <span style={{ fontSize: '13px', fontWeight: 700, fontFamily: 'var(--font-mono)', color: (currentMatch.finalConfidence >= 0.78 || currentMatch.finalConfidence >= 78) ? 'var(--success)' : 'var(--warning)' }}>
+              {Math.round(currentMatch.finalConfidence > 1 ? currentMatch.finalConfidence : (currentMatch.finalConfidence ?? 0) * 100)}% MATCH
             </span>
           </div>
 

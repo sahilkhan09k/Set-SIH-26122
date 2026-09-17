@@ -155,6 +155,7 @@ function generateFallback(): ConversationMessage {
 }
 
 const SUGGESTED_INPUTS = [
+  'What works were completed today?',
   'Today piping completed erection of around 40 inch-dia of the 8 inch line at Rack R24. Started at 8:30 and finished by 5.',
   'Cable tray installation started in Substation S2. Approximately 35 metres installed during the day shift.',
   'Foundation F-204 concreting completed. Work started at 09:00 and finished at 15:30. Total poured: 45 CUM.',
@@ -165,7 +166,7 @@ export default function TimeAgent() {
     {
       id: 'welcome',
       role: 'ai',
-      text: 'Welcome to SETU Time Agent. I convert your natural language field reports directly into structured schedule updates. Describe what your team completed today — include discipline, location, quantities, and times for best results.',
+      text: 'Welcome to SETU Time Agent. I convert your natural language field reports directly into structured schedule updates, and answer real-time questions about daily progress and critical path execution. What works would you like to review or report today?',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -195,17 +196,17 @@ export default function TimeAgent() {
     try {
       const { api } = await import('../services/api');
       const res = await api.sendTimeAgentMessage(text);
-      if (res && res.extraction && res.match) {
+      if (res && res.reply) {
         const aiMsg: ConversationMessage = {
           id: Math.random().toString(36).slice(2),
           role: 'ai',
           text: res.reply,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           extraction: res.extraction,
-          match: {
+          match: res.match ? {
             ...res.match,
-            confidence: Math.round(res.match.confidence * 100),
-          },
+            confidence: Math.round(res.match.confidence > 1 ? res.match.confidence : res.match.confidence * 100),
+          } : undefined,
           confirmed: false,
         };
         setMessages((prev) => [...prev, aiMsg]);

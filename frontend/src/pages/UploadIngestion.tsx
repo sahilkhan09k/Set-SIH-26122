@@ -12,6 +12,7 @@ import {
   Eye,
   Check,
   Download,
+  Trash2,
 } from 'lucide-react';
 import type { ToastData } from '../components/ui/Toast';
 import { api } from '../services/api';
@@ -69,6 +70,17 @@ export default function UploadIngestion({ addToast }: UploadIngestionProps) {
     }).catch(() => {});
   }, []);
 
+  const handleClearReports = async () => {
+    if (!confirm('Clear all uploaded DPR reports, extracted events, and schedule linkages? (Baseline schedule will remain intact)')) return;
+    try {
+      await api.clearReports();
+      setFiles([]);
+      addToast({ type: 'success', message: 'All ingested DPR reports and matches cleared.' });
+    } catch {
+      addToast({ type: 'error', message: 'Failed to clear reports.' });
+    }
+  };
+
   const processFile = useCallback(async (file: File, sampleContent?: string) => {
     setIsProcessing(true);
     setProcessingProgress(10);
@@ -113,25 +125,22 @@ export default function UploadIngestion({ addToast }: UploadIngestionProps) {
     try {
       // 1. Upload the document to backend
       let documentId: string | undefined;
-      let content = sampleContent || '';
+      let res: any;
 
       if (fileFormat === 'TXT' || fileFormat === 'CSV') {
         // Read text files directly
-        if (!content) {
-          content = await file.text();
-        }
+        const content = sampleContent || (await file.text());
         const uploadRes = await api.uploadReport(undefined, content);
         documentId = uploadRes.document_id;
-      } else if (fileFormat === 'XLSX' || fileFormat === 'PDF') {
-        // Upload binary files
+        // 2. Process: extract events & match to schedule
+        res = await api.processReport(documentId, content);
+      } else {
+        // XLSX, PDF: upload as binary file so backend parses rows with xlsx library
         const uploadRes = await api.uploadReport(file);
         documentId = uploadRes.document_id;
-        // Try to read as text for processing
-        try { content = await file.text(); } catch { content = file.name; }
+        // 2. Process: backend uses parsed spreadsheet content
+        res = await api.processReport(documentId);
       }
-
-      // 2. Process: extract events & match to schedule
-      const res = await api.processReport(documentId, content || file.name);
 
       setProcessingProgress(100);
       setIsProcessing(false);
@@ -327,9 +336,21 @@ export default function UploadIngestion({ addToast }: UploadIngestionProps) {
             <Clock size={16} color="var(--accent)" />
             Ingested Documents &amp; Processing Log
           </div>
-          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-            {files.length} document{files.length !== 1 ? 's' : ''} processed
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {files.length > 0 && (
+              <button
+                className="btn btn-ghost btn-sm"
+                style={{ color: 'var(--danger)', borderColor: 'rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', gap: '4px' }}
+                onClick={handleClearReports}
+                title="Clear all DPR documents and matches"
+              >
+                <Trash2 size={12} /> Clear DPRs &amp; Matches
+              </button>
+            )}
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+              {files.length} document{files.length !== 1 ? 's' : ''} processed
+            </span>
+          </div>
         </div>
         <div className="table-wrapper">
           <table className="data-table">

@@ -1,9 +1,32 @@
 import { Router } from 'express';
 import { prisma } from '../services/db.js';
-import { extractEventsFromText } from '../services/nlpEngine.js';
+import { extractEventsFromText, answerScheduleQueryWithAI } from '../services/nlpEngine.js';
 import { matchEventToActivities } from '../services/matchingEngine.js';
 
 const router = Router();
+
+function isScheduleQuery(text: string): boolean {
+  const lower = text.toLowerCase();
+  return (
+    lower.includes('what work') ||
+    lower.includes('what works') ||
+    lower.includes('completed today') ||
+    lower.includes('done today') ||
+    lower.includes('finished today') ||
+    lower.includes('what was completed') ||
+    lower.includes('what were completed') ||
+    lower.includes('what where completed') ||
+    lower.includes('show completed') ||
+    lower.includes('list completed') ||
+    lower.includes('progress today') ||
+    lower.includes('schedule status') ||
+    lower.includes('critical path') ||
+    lower.includes('how many activities') ||
+    lower.includes('what is the status') ||
+    lower.includes('status of today') ||
+    lower.includes('summary of today')
+  );
+}
 
 router.post('/', async (req, res) => {
   try {
@@ -13,8 +36,36 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Message content required' });
     }
 
-    // 1. NLP / LLM extraction
-    const extractedEvents = await extractEventsFromText(message, '2026-09-21');
+    // A. Handle Conversational Schedule Queries / RAG (e.g. "What works were completed today?")
+    if (isScheduleQuery(message)) {
+      const completed = await prisma.scheduleActivity.findMany({
+        where: { status: 'COMPLETE' },
+        orderBy: { activityCode: 'asc' },
+      });
+      const inProgress = await prisma.scheduleActivity.findMany({
+        where: { status: 'IN_PROGRESS' },
+        orderBy: { activityCode: 'asc' },
+      });
+      const totalCount = await prisma.scheduleActivity.count();
+
+      const reply = await answerScheduleQueryWithAI(message, {
+        completed,
+        inProgress,
+        totalCount,
+        matches: [],
+      });
+
+      return res.json({
+        reply,
+        isQuery: true,
+        completedCount: completed.length,
+        inProgressCount: inProgress.length,
+      });
+    }
+
+    // B. Handle Field Work Execution Logging
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const extractedEvents = await extractEventsFromText(message, todayStr);
     const primaryEvent = extractedEvents[0] || {
       discipline: 'Piping',
       activityDescription: message,

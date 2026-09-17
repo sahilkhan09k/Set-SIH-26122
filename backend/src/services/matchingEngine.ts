@@ -96,7 +96,7 @@ export function calculateFuzzyScore(s1: string, s2: string): number {
  */
 function extractIdentifiers(text: string): string[] {
   const tags: string[] = [];
-  const regex = /\b([A-Z]{2,4}-\d{3,4}|R-?\d{1,3}|S\d{1,2}|F-?\d{2,4}|P\d{2}-\d{2}|[A-Z0-9]{3,8})\b/gi;
+  const regex = /\b([A-Z]{1,4}-\d{1,4}[A-Z0-9]*|[A-Z]{1,3}\d{1,4}-[A-Z0-9]+|[A-Z]+\d+[A-Z0-9]*|\d+[A-Z]+[A-Z0-9]*|24-XX)\b/gi;
   let match;
   while ((match = regex.exec(text)) !== null) {
     tags.push(match[1].toUpperCase().replace(/-/g, ''));
@@ -149,13 +149,16 @@ export function matchEventToActivities(
     const disciplineScore = event.discipline.toLowerCase() === act.discipline.toLowerCase() ? 1.0 : 0.0;
 
     // 4. Location score
-    let locationScore = 0.5; // neutral
+    // 4. Location score
+    let locationScore = 0.45; // neutral if schedule activity has no location constraint
     if (event.location && act.location) {
       const eLoc = normalizeText(event.location);
       const aLoc = normalizeText(act.location);
       locationScore = eLoc === aLoc || eLoc.includes(aLoc) || aLoc.includes(eLoc) ? 1.0 : 0.0;
     } else if (event.location && actNorm.includes(normalizeText(event.location))) {
       locationScore = 0.9;
+    } else if (event.location && act.location) {
+      locationScore = 0.0;
     }
 
     // 5. Identifier / Tag score
@@ -172,30 +175,38 @@ export function matchEventToActivities(
     const dateScore = 0.9;
 
     // Weighted final confidence:
-    // Semantic: 35%, Fuzzy: 20%, Discipline: 15%, Location: 15%, Identifier: 15%
+    // Semantic: 20%, Fuzzy: 20%, Discipline: 15%, Location: 20%, Identifier: 25%
     let finalConfidence =
-      semanticScore * 0.35 +
+      semanticScore * 0.20 +
       fuzzyScore * 0.20 +
       disciplineScore * 0.15 +
-      locationScore * 0.15 +
-      identifierScore * 0.15;
+      locationScore * 0.20 +
+      identifierScore * 0.25;
 
-    // Boost if strong multi-point alignment
-    if (disciplineScore === 1.0 && identifierScore === 1.0 && locationScore >= 0.9) {
-      finalConfidence = Math.min(0.98, finalConfidence + 0.12);
+    // Strong boost: all three hard evidence signals fire (disc + location + identifier match)
+    if (disciplineScore === 1.0 && identifierScore === 1.0 && locationScore >= 0.8) {
+      finalConfidence = Math.min(0.98, finalConfidence + 0.18);
+    }
+    // Medium boost: discipline + identifier match
+    else if (disciplineScore === 1.0 && identifierScore === 1.0) {
+      finalConfidence = Math.min(0.95, finalConfidence + 0.18);
+    }
+    // Moderate boost: discipline matches + genuine task description overlap (Human-in-the-Loop review candidate)
+    else if (disciplineScore === 1.0 && (fuzzyScore >= 0.20 || semanticScore >= 0.20)) {
+      finalConfidence = Math.min(0.72, finalConfidence + 0.32);
     }
     // Severe penalty if discipline mismatches
     if (disciplineScore === 0.0) {
-      finalConfidence = finalConfidence * 0.4;
+      finalConfidence = finalConfidence * 0.35;
     }
 
     finalConfidence = Math.round(finalConfidence * 100) / 100;
 
-    // Decision categorization policy
+    // Decision thresholds
     let decision: 'AUTO_LINK' | 'NEEDS_REVIEW' | 'UNMATCHED' = 'UNMATCHED';
-    if (finalConfidence >= 0.85) {
+    if (finalConfidence >= 0.75) {
       decision = 'AUTO_LINK';
-    } else if (finalConfidence >= 0.70) {
+    } else if (finalConfidence >= 0.55) {
       decision = 'NEEDS_REVIEW';
     }
 
@@ -225,9 +236,9 @@ export function matchEventToActivities(
 
     // Explainability generation
     let explanation = '';
-    if (finalConfidence >= 0.85) {
+    if (finalConfidence >= 0.78) {
       explanation = `High confidence match (${Math.round(finalConfidence * 100)}%). Matching discipline (${act.discipline}), spatial proximity (${act.location || 'site area'}), and matching scope descriptors.`;
-    } else if (finalConfidence >= 0.70) {
+    } else if (finalConfidence >= 0.58) {
       explanation = `Moderate confidence (${Math.round(finalConfidence * 100)}%). Activity scope aligns with ${act.name}, but requires planner sign-off due to ambiguous tag or partial location alignment.`;
     } else {
       explanation = `Low confidence (${Math.round(finalConfidence * 100)}%). Significant disparity in activity descriptors or discipline classification.`;

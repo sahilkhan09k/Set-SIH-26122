@@ -109,10 +109,23 @@ router.post('/:id/approve', async (req, res) => {
       data: { status: 'LINKED' },
     });
 
-    // Update schedule activity status to IN_PROGRESS
+    // Update schedule activity status to COMPLETE
+    const act = match.scheduleActivity;
+    const event = match.progressEvent;
+    const today = new Date();
+    const finishDate = event.actualEnd ? new Date(event.actualEnd) : (event.createdAt ? new Date(event.createdAt) : today);
+    const startDate = act.actualStart ? new Date(act.actualStart) : (act.plannedStart ? new Date(act.plannedStart) : finishDate);
+
     await prisma.scheduleActivity.update({
       where: { id: match.scheduleActivityId },
-      data: { status: 'IN_PROGRESS' },
+      data: {
+        status: 'COMPLETE',
+        actualStart: startDate,
+        actualFinish: finishDate,
+        quantity: event.quantity != null ? Number(event.quantity) : act.quantity,
+        unit: event.unit || act.unit,
+        location: event.location || act.location,
+      },
     });
 
     // Create planner review record
@@ -235,6 +248,24 @@ router.post('/:id/correct', async (req, res) => {
     await prisma.progressEvent.update({
       where: { id: match.progressEventId },
       data: { status: 'LINKED' },
+    });
+
+    // Update target schedule activity to COMPLETE
+    const pe = await prisma.progressEvent.findUnique({ where: { id: match.progressEventId } });
+    const today = new Date();
+    const finishDate = pe?.actualEnd ? new Date(pe.actualEnd) : (pe?.createdAt ? new Date(pe.createdAt) : today);
+    const startDate = newActivity.actualStart ? new Date(newActivity.actualStart) : (newActivity.plannedStart ? new Date(newActivity.plannedStart) : finishDate);
+
+    await prisma.scheduleActivity.update({
+      where: { id: newScheduleActivityId },
+      data: {
+        status: 'COMPLETE',
+        actualStart: startDate,
+        actualFinish: finishDate,
+        quantity: pe?.quantity != null ? Number(pe?.quantity) : newActivity.quantity,
+        unit: pe?.unit || newActivity.unit,
+        location: pe?.location || newActivity.location,
+      },
     });
 
     await prisma.plannerReview.create({

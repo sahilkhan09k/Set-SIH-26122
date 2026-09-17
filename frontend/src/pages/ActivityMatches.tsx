@@ -249,7 +249,7 @@ export default function ActivityMatches() {
                           </span>
                         </td>
                         <td style={{ minWidth: '150px' }}>
-                          <ConfidenceBar value={match.finalConfidence} />
+                          <ConfidenceBar value={Math.round((match.finalConfidence ?? 0) * 100)} />
                         </td>
                         <td>
                           <span className={`badge ${getStatusBadgeClass(match.decision)}`}>

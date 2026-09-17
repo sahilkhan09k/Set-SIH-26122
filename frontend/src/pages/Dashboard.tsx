@@ -414,7 +414,7 @@ export default function Dashboard() {
                       </span>
                     </td>
                     <td style={{ minWidth: '150px' }}>
-                      <ConfidenceBar value={match.confidence} />
+                      <ConfidenceBar value={Math.round((match.confidence ?? 0) * 100)} />
                     </td>
                     <td>
                       <span className={`badge ${getStatusBadgeClass(match.status)}`}>

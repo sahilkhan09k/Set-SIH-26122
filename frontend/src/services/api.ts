@@ -85,6 +85,14 @@ export const api = {
     }
   },
 
+  async clearReports() {
+    const res = await fetch(`${API_BASE}/reports/clear`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('Failed to clear reports');
+    return await res.json();
+  },
+
   async uploadReport(file?: File, rawContent?: string) {
     const formData = new FormData();
     if (file) formData.append('file', file);
