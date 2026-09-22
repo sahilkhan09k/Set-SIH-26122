@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -51,7 +51,7 @@ model IngestionDocument {
   discipline       String?
   uploadedBy       String          @default("Site Supervisor")
   uploadedAt       DateTime        @default(now())
-  rawContent       String?
+  rawContent       String?         @db.Text
   processingStatus String          @default("COMPLETED") // PENDING, PROCESSING, COMPLETED, ERROR
   progressEvents   ProgressEvent[]
 }
@@ -63,13 +63,13 @@ model ProgressEvent {
   projectId            String
   project              Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
   discipline           String
-  activityDescription  String
+  activityDescription  String             @db.Text
   actualStart          DateTime?
   actualEnd            DateTime?
   quantity             Float?
   unit                 String?
   location             String?
-  sourceText           String
+  sourceText           String             @db.Text
   extractionConfidence Float              @default(0.9)
   status               String             @default("PROCESSED") // PROCESSED, LINKED, UNRESOLVED
   matches              ActivityMatch[]
@@ -90,7 +90,7 @@ model ActivityMatch {
   dateScore          Float            @default(0.0)
   finalConfidence    Float            @default(0.0)
   decision           String           // AUTO_LINK, NEEDS_REVIEW, UNMATCHED
-  explanation        String
+  explanation        String           @db.Text
   reviews            PlannerReview[]
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
@@ -104,7 +104,7 @@ model PlannerReview {
   action             String        // APPROVED, REJECTED, REASSIGNED
   originalActivityId String?
   selectedActivityId String?
-  reason             String?
+  reason             String?       @db.Text
   reviewedAt         DateTime      @default(now())
 }
 
@@ -113,12 +113,12 @@ model AuditLog {
   entityType  String   // ActivityMatch, ScheduleActivity, Document, Review
   entityId    String
   action      String   // AUTO_LINKED, PLANNER_APPROVED, PLANNER_REJECTED, REASSIGNED, CREATED
-  oldValue    String?
-  newValue    String?
+  oldValue    String?  @db.Text
+  newValue    String?  @db.Text
   userId      String   @default("System AI")
   source      String   @default("AI") // AI, PLANNER, SYSTEM
   confidence  Float?
-  explanation String?
+  explanation String?  @db.Text
   timestamp   DateTime @default(now())
 }
 
@@ -132,7 +132,7 @@ model HistoricalExecution {
   plannedDuration Int
   actualDuration  Int
   variance        Int
-  delayReason     String?
+  delayReason     String?  @db.Text
   contractor      String?
   quantity        Float?
   productivity    Float?
