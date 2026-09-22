@@ -137,22 +137,18 @@ export default function ActivityMatches() {
             }}
           >
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <div className="filter-group">
-                {[
-                  { key: 'ALL', label: 'All Status' },
-                  { key: 'AUTO_LINK', label: 'Auto-Linked' },
-                  { key: 'NEEDS_REVIEW', label: 'Needs Review' },
-                  { key: 'UNMATCHED', label: 'Unmatched' },
-                ].map((item) => (
-                  <button
-                    key={item.key}
-                    className={`filter-btn ${filterStatus === item.key ? 'active' : ''}`}
-                    onClick={() => setFilterStatus(item.key)}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
+              <select
+                className="search-input"
+                style={{ width: '160px', padding: '8px 12px' }}
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                id="matches-status-filter"
+              >
+                <option value="ALL">All Statuses</option>
+                <option value="AUTO_LINK">Auto-Linked</option>
+                <option value="NEEDS_REVIEW">Needs Review</option>
+                <option value="UNMATCHED">Unmatched</option>
+              </select>
 
               <select
                 className="search-input"

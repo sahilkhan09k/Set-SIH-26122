@@ -280,18 +280,22 @@ export default function Schedule({ addToast }: ScheduleProps) {
           }}
         >
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-            {/* Discipline Filter */}
-            <div className="filter-group">
-              {['ALL', 'Civil', 'Piping', 'Electrical', 'Instrumentation', 'Mechanical', 'HSE'].map((disc) => (
-                <button
-                  key={disc}
-                  className={`filter-btn ${selectedDiscipline === disc ? 'active' : ''}`}
-                  onClick={() => setSelectedDiscipline(disc)}
-                >
-                  {disc}
-                </button>
-              ))}
-            </div>
+            {/* Discipline Filter — Dropdown */}
+            <select
+              className="search-input"
+              style={{ width: '170px', padding: '8px 12px' }}
+              value={selectedDiscipline}
+              onChange={(e) => setSelectedDiscipline(e.target.value)}
+              id="schedule-discipline-filter"
+            >
+              <option value="ALL">All Disciplines</option>
+              <option value="Civil">Civil</option>
+              <option value="Piping">Piping</option>
+              <option value="Electrical">Electrical</option>
+              <option value="Instrumentation">Instrumentation</option>
+              <option value="Mechanical">Mechanical</option>
+              <option value="HSE">HSE</option>
+            </select>
 
             {/* Status Filter */}
             <select

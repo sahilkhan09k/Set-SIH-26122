@@ -123,22 +123,18 @@ export default function AuditTrail() {
               gap: '12px',
             }}
           >
-            <div className="filter-group">
-              {[
-                { key: 'ALL', label: 'All Sources' },
-                { key: 'AI', label: 'AI Decisions' },
-                { key: 'PLANNER', label: 'Human Actions' },
-                { key: 'SYSTEM', label: 'System Sync' },
-              ].map((item) => (
-                <button
-                  key={item.key}
-                  className={`filter-btn ${sourceFilter === item.key ? 'active' : ''}`}
-                  onClick={() => setSourceFilter(item.key)}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
+            <select
+              className="search-input"
+              style={{ width: '160px', padding: '8px 12px' }}
+              value={sourceFilter}
+              onChange={(e) => setSourceFilter(e.target.value)}
+              id="audit-source-filter"
+            >
+              <option value="ALL">All Sources</option>
+              <option value="AI">AI Decisions</option>
+              <option value="PLANNER">Human Actions</option>
+              <option value="SYSTEM">System Sync</option>
+            </select>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div className="search-input-wrap" style={{ width: '300px' }}>
