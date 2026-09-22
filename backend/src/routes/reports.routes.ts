@@ -249,15 +249,13 @@ router.post('/process', async (req, res) => {
       // Match against schedule activities
       const matches = matchEventToActivities(
         {
-          id: progressEvent.id,
           discipline: item.discipline,
           activityDescription: item.activityDescription,
           quantity: item.quantity,
           unit: item.unit,
           location: item.location,
           sourceText: item.sourceText,
-          extractionConfidence: item.extractionConfidence,
-          reportDate: reportDate || '2026-09-21',
+          actualDate: reportDate || '2026-09-21',
         },
         scheduleActivities.map(a => ({
           id: a.id,
